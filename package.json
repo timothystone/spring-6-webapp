@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "swagger:up": "docker compose -f src/main/docker/swagger.yml up -d",
-    "swagger:down": "docker compose -f src/main/docker/swagger.yml down"
+    "swagger:down": "docker compose -f src/main/docker/swagger.yml down",
+    "prepare": "is-ci || husky"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,11 @@
   "bugs": {
     "url": "https://github.com/timothystone/spring-6-webapp/issues"
   },
-  "homepage": "https://github.com/timothystone/spring-6-webapp#readme"
+  "homepage": "https://github.com/timothystone/spring-6-webapp#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
+    "is-ci": "^4.1.0"
+  }
 }
