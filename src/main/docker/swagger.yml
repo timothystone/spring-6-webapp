@@ -1,9 +1,9 @@
 services:
   swagger-editor:
-    image: swaggerapi/swagger-editor:latest
+    image: "redocly/redoc"
     environment:
-      SWAGGER_FILE: "/tmp/openapi.yml"
+      SPEC_URL: "openapi.yml"
     volumes:
-      - "../resources/openapi/openapi.yml:/tmp/openapi.yml"
+      - "../resources/openapi/openapi.yml:/usr/share/nginx/html/openapi.yml"
     ports:
-      - 127.0.0.1:7742:8080
+      - 127.0.0.1:8080:80
