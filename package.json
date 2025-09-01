@@ -4,7 +4,7 @@
   "description": "A Spring Boot 6 Web API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "npm run swagger:lint -- openapi.yml",
     "swagger:up": "docker compose -f src/main/docker/swagger.yml up -d",
     "swagger:down": "docker compose -f src/main/docker/swagger.yml down",
     "swagger:lint": "docker run --rm -v ${PWD}/src/main/resources/openapi:/spec redocly/cli lint",
