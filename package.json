@@ -30,6 +30,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "commitlint-plugin-function-rules": "^4.0.2",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0"
   }
