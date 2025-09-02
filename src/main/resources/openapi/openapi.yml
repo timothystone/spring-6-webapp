@@ -50,15 +50,127 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /v1/customers/{id}:
+    get:
+      tags:
+        - Customer
+      summary: Get Customer by ID
+      description: Get Customer by ID
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          description: the ID of the customer
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        '400':
+          description: Invalid Request
+        '404':
+          description: Customer not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Customer:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific customer
+        name:
+          $ref: "#/components/schemas/Name"
+        shipToAddress:
+          $ref: "#/components/schemas/Address"
+        billToAddress:
+          $ref: "#/components/schemas/Address"
+        email:
+          type: string
+        phone:
+          type: string
+        paymentMethods:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentMethods"
+    Name:
+      type: object
+      properties:
+        prefix:
+          type: string
+          description: The honorific of the customer.
         firstName:
           type: string
           description: The first name of the customer.
           example: Timothy
+        lastName:
+          type: string
+          description: The last name of the customer.
+        suffix:
+          type: string
+          description: "The name suffix, e.g., Jr, III, Sr., &c."
+    Address:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Address
+        addressLine1:
+          type: string
+          description: First line of the address
+          example: 123 Main St.
+        addressLine2:
+          type: string
+          description: Second line of the address
+          example: Suite 100
+        city:
+          type: string
+          description: City
+          example: Colonial Beach
+        state:
+          type: string
+          description: State
+          example: Virginia
+        postalCode:
+          type: string
+          description: the US zip code
+          example: 22443
+    PaymentMethods:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of payment method for customer
+        displayName:
+          type: string
+        cardNumber:
+          type: integer
+        expiryMonth:
+          type: integer
+        expiryYear:
+          type: integer
+        cvv:
+          type: integer
+        dateCreated:
+          type: string
+          format: date-time
+        dateUpdated:
+          type: string
+          format: date-time
     Error:
       type: object
       properties:
