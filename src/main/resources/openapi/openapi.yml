@@ -14,13 +14,8 @@ servers:
 tags:
   - name: Customer
     description: Customer operations
-#  - name: store
-#    description: Access to Petstore orders
-#    externalDocs:
-#      description: Find out more about our store
-#      url: https://swagger.io
-#  - name: user
-#    description: Operations about user
+  - name: Product
+    description: Product operations
 security:
   - basic_auth: []
 paths:
@@ -82,6 +77,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /v1/products:
+    get:
+      tags:
+        - Product
+      summary: List Products
+      description: Returns the list of Products
+      operationId: listProducts
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid Request
+        '404':
+          description: Product not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /v1/products/{id}:
+    get:
+      tags:
+        - Product
+      summary: Get Product by ID
+      description: Get Product by ID
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          description: the ID of the Product
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        '400':
+          description: Invalid Request
+        '404':
+          description: Product not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Customer:
@@ -105,6 +158,106 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PaymentMethods"
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Product
+        description:
+          type: string
+          example: |-
+            If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
+            workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
+            and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
+            detail. For making statements. Imported.
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        dimensions:
+          $ref: "#/components/schemas/Dimensions"
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/Image"
+        price:
+          type: number
+          format: double
+          example: 12.34
+        cost:
+          type: number
+          format: double
+          example: 1.23
+        dateCreated:
+          type: string
+          format: date-time
+          description: The date the product was created
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The date the product was updated
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the Image
+        category:
+          type: string
+          description: A category for the Product
+        dateCreated:
+          type: string
+          format: date-time
+          description: The date the Category was created
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The date the Category was updated
+    Dimensions:
+      type: object
+      properties:
+        height:
+          type: number
+          format: float
+          example: 3.13
+        width:
+          type: number
+          format: float
+          example: 3.13
+        length:
+          type: number
+          format: float
+          example: 3.13
+    Image:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the Image
+        caption:
+          type: string
+          description: The caption of the image
+          example: The Top Hat
+        alt_text:
+          type: string
+          description: The accessible alt text of the image
+          example: The Top Hat
+        url:
+          type: string
+          format: url
+          example: https://example.com/dam/images/top_hat.webp
+        dateCreated:
+          type: string
+          format: date-time
+          description: The date the image was created
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The date the image was updated
     Name:
       type: object
       properties:
