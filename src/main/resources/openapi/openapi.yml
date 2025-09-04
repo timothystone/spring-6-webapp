@@ -204,6 +204,79 @@ components:
           type: string
           format: uuid
           description: UUID of an Order
+        customer:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: UUID of a specific customer
+            name:
+              $ref: "#/components/schemas/Name"
+            shipToAddess:
+              $ref: "#/components/schemas/Address"
+            billToAddess:
+              $ref: "#/components/schemas/Address"
+            email:
+              type: string
+              description: Customer email address
+              example: jpeterman@gmail.com
+            phone:
+              type: string
+              description: Customer phone
+              example: 804-555-1212
+            selectedPaymentMethod:
+              $ref: "#/components/schemas/PaymentMethod"             
+        orderStatus:
+          type: string
+        shipmentInfo:
+          type: string
+        orderLines:
+          type: array
+          description: the items on the order
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: UUID of the Order Line
+              product:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: UUID of the product
+                  description:
+                    type: string
+                    description: the description of the product
+                  price:
+                    type: number
+                    format: double
+                    example: 12.34
+              orderQuantity:
+                type: integer
+                description: the quantity of the products ordered
+              shipQuantity:
+                type: integer
+                description: the quantity of the products shipped
+              dateCreated:
+                type: string
+                format: date-time
+                description: The date the product was created
+              dateUpdated:
+                type: string
+                format: date-time
+                description: The date the product was updated
+        dateCreated:
+          type: string
+          format: date-time
+          description: The date the product was created
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The date the product was updated
     Customer:
       type: object
       properties:
@@ -224,7 +297,7 @@ components:
         paymentMethods:
           type: array
           items:
-            $ref: "#/components/schemas/PaymentMethods"
+            $ref: "#/components/schemas/PaymentMethod"
     Product:
       type: object
       properties:
@@ -331,6 +404,7 @@ components:
         prefix:
           type: string
           description: The honorific of the customer.
+          example: Mr.
         firstName:
           type: string
           description: The first name of the customer.
@@ -338,6 +412,7 @@ components:
         lastName:
           type: string
           description: The last name of the customer.
+          example: Stone
         suffix:
           type: string
           description: "The name suffix, e.g., Jr, III, Sr., &c."
@@ -367,8 +442,8 @@ components:
         postalCode:
           type: string
           description: the US zip code
-          example: 22443
-    PaymentMethods:
+          example: "22443"
+    PaymentMethod:
       type: object
       properties:
         id:
