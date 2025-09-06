@@ -22,6 +22,37 @@ security:
   - basic_auth: []
 paths:
   /v1/customers:
+    post:
+      tags:
+        - Customer
+      summary: Create a new Customer
+      description: Create a new Customer
+      operationId: createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        '201':
+          description: Created new Customer
+          headers:
+            Location:
+              description: The location of the new Customer
+              schema:
+                type: string
+                format: uri
+                example: /v1/customers/14913dea-0c5c-4846-a1a7-459aaa1305d3
+        '400':
+          description: Bad Request
+        '409':
+          description: Conflict
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     get:
       tags:
         - Customer
@@ -38,7 +69,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Customer'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Customer not found
         default:
@@ -70,7 +101,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Customer not found
         default:
@@ -96,7 +127,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Product'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Product not found
         default:
@@ -128,7 +159,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Product"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Product not found
         default:
@@ -154,7 +185,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Order'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Order not found
         default:
@@ -186,7 +217,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Order"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Order not found
         default:
@@ -291,6 +322,10 @@ components:
           description: The update date of the Product 
     Customer:
       type: object
+      required:
+        - name
+        - shipToAddress
+        - billToAddress
       properties:
         id:
           type: string
@@ -304,13 +339,34 @@ components:
         billToAddress:
           $ref: "#/components/schemas/Address"
         email:
-          type: string
+          type: 
+            - string
+            - 'null'
+          description: Customer email address
+          example: jpeterman@gmail.com
+          minLength: 6
+          maxLength: 255
         phone:
-          type: string
+          type:
+            - string
+            - 'null'
+          example: 804-555-1212
+          minLength: 7
+          maxLength: 20
         paymentMethods:
           type: array
           items:
             $ref: "#/components/schemas/PaymentMethod"
+        dateCreated:
+          type: string
+          format: date-time
+          description: The creation date of the Customer
+          readOnly: true
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The update date of the Customer
+          readOnly: true
     Product:
       type: object
       properties:
@@ -422,9 +478,14 @@ components:
           readOnly: true
     Name:
       type: object
+      required:
+        - firstName
+        - lastName
       properties:
         prefix:
-          type: string
+          type:
+            - string
+            - 'null'
           description: The honorific of the Customer.
           example: Mr.
           minLength: 0
@@ -432,22 +493,29 @@ components:
         firstName:
           type: string
           description: The first name of the Customer.
-          example: Timothy
+          example: John
           minLength: 2
           maxLength: 100
         lastName:
           type: string
           description: The last name of the Customer.
-          example: Stone
+          example: Peterman
           minLength: 2
           maxLength: 100
         suffix:
-          type: string
+          type:
+            - string
+            - 'null'
           description: "The name suffix, e.g., Jr, III, Sr., &c."
           minLength: 0
           maxLength: 25
     Address:
       type: object
+      required:
+        - addressLine1
+        - city
+        - state
+        - postalCode
       properties:
         id:
           type: string
@@ -455,7 +523,9 @@ components:
           description: UUID of a specific Address
           readOnly: true
         addressLine1:
-          type: string
+          type:
+            - string
+            - 'null'
           description: First line of the Address
           example: 123 Main St.
           minLength: 3
@@ -474,7 +544,7 @@ components:
           maxLength: 100
         state:
           type: string
-          description: 2 Charater US State Code
+          description: 2 Character US State Code
           example: VA
           minLength: 2
           maxLength: 2
@@ -486,6 +556,12 @@ components:
           maxLength: 10
     PaymentMethod:
       type: object
+      required:
+        - displayName
+        - cardNumber
+        - expiryMonth
+        - expiryYear
+        - cvv
       properties:
         id:
           type: string
@@ -496,16 +572,27 @@ components:
           type: string
           minLength: 2
           maxLength: 100
+          example: J Peterman
         cardNumber:
-          type: integer
+          type: string
           minLength: 13 
           maxLength: 19
+          example: "378282246310005"
         expiryMonth:
-          type: integer
+          type: string
+          minLength: 2
+          maxLength: 2
+          example: "02"
         expiryYear:
-          type: integer
+          type: string
+          minLength: 2
+          maxLength: 2
+          example: "25"
         cvv:
-          type: integer
+          type: string
+          minLength: 3
+          maxLength: 4
+          example: "1234"
         dateCreated:
           type: string
           format: date-time
