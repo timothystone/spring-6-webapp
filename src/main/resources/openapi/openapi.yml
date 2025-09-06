@@ -26,7 +26,7 @@ paths:
       tags:
         - Customer
       summary: List Customers
-      description: Returns the list of customers
+      description: Returns the list of Customers
       operationId: listCustomers
       responses:
         '200':
@@ -57,7 +57,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: the ID of the customer
+          description: the ID of the Customer
           required: true
           schema:
             type: string
@@ -204,86 +204,99 @@ components:
           type: string
           format: uuid
           description: UUID of an Order
+          readOnly: true
         customer:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: UUID of a specific customer
-            name:
-              $ref: "#/components/schemas/Name"
-            shipToAddess:
-              $ref: "#/components/schemas/Address"
-            billToAddess:
-              $ref: "#/components/schemas/Address"
-            email:
-              type: string
-              description: Customer email address
-              example: jpeterman@gmail.com
-            phone:
-              type: string
-              description: Customer phone
-              example: 804-555-1212
-            selectedPaymentMethod:
-              $ref: "#/components/schemas/PaymentMethod"             
+          $ref: "#/components/schemas/OrderCustomer"
         orderStatus:
           type: string
         shipmentInfo:
           type: string
         orderLines:
           type: array
-          description: the items on the order
+          description: the items on the Order
           items:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                description: UUID of the Order Line
-              product:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    description: UUID of the product
-                  description:
-                    type: string
-                    description: the description of the product
-                  price:
-                    type: number
-                    format: double
-                    example: 12.34
-              orderQuantity:
-                type: integer
-                description: the quantity of the products ordered
-              shipQuantity:
-                type: integer
-                description: the quantity of the products shipped
-              dateCreated:
-                type: string
-                format: date-time
-                description: The date the product was created
-              dateUpdated:
-                type: string
-                format: date-time
-                description: The date the product was updated
+            $ref: "#/components/schemas/OrderLineItem"
         dateCreated:
           type: string
           format: date-time
-          description: The date the product was created
+          description: The creation date of the Product 
+          readOnly: true
         dateUpdated:
           type: string
           format: date-time
-          description: The date the product was updated
+          description: The update date of the Product 
+          readOnly: true
+    OrderCustomer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Customer
+          readOnly: true
+        name:
+          $ref: "#/components/schemas/Name"
+        shipToAddess:
+          $ref: "#/components/schemas/Address"
+        billToAddess:
+          $ref: "#/components/schemas/Address"
+        email:
+          type: string
+          description: Customer email address
+          example: jpeterman@gmail.com
+          minLength: 6
+          maxLength: 255
+        phone:
+          type: string
+          description: Customer phone
+          example: 804-555-1212
+          minLength: 7
+          maxLength: 20
+        selectedPaymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"             
+    OrderLineItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of the Order Line
+        product:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: UUID of the Product
+            description:
+              type: string
+              description: the description of the Product
+            price:
+              type: number
+              format: double
+              example: 12.34
+        orderQuantity:
+          type: integer
+          description: the quantity of the Products ordered
+        shipQuantity:
+          type: integer
+          description: the quantity of the Products shipped
+        dateCreated:
+          type: string
+          format: date-time
+          description: The creation date of the Product 
+        dateUpdated:
+          type: string
+          format: date-time
+          description: The update date of the Product 
     Customer:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: UUID of a specific customer
+          description: UUID of a specific Customer
+          readOnly: true
         name:
           $ref: "#/components/schemas/Name"
         shipToAddress:
@@ -305,6 +318,7 @@ components:
           type: string
           format: uuid
           description: UUID of a specific Product
+          readOnly: true
         description:
           type: string
           example: |-
@@ -333,11 +347,13 @@ components:
         dateCreated:
           type: string
           format: date-time
-          description: The date the product was created
+          description: The creation date of the Product 
+          readOnly: true
         dateUpdated:
           type: string
           format: date-time
-          description: The date the product was updated
+          description: The update date of the Product 
+          readOnly: true
     Category:
       type: object
       properties:
@@ -345,17 +361,20 @@ components:
           type: string
           format: uuid
           description: Unique identifier of the Image
+          readOnly: true
         category:
           type: string
           description: A category for the Product
         dateCreated:
           type: string
           format: date-time
-          description: The date the Category was created
+          description: The creation date the Category 
+          readOnly: true
         dateUpdated:
           type: string
           format: date-time
-          description: The date the Category was updated
+          description: The update date of the Category 
+          readOnly: true
     Dimensions:
       type: object
       properties:
@@ -378,13 +397,14 @@ components:
           type: string
           format: uuid
           description: Unique identifier of the Image
+          readOnly: true
         caption:
           type: string
-          description: The caption of the image
+          description: The caption of the Image
           example: The Top Hat
         alt_text:
           type: string
-          description: The accessible alt text of the image
+          description: The accessible alt text of the Image
           example: The Top Hat
         url:
           type: string
@@ -393,29 +413,39 @@ components:
         dateCreated:
           type: string
           format: date-time
-          description: The date the image was created
+          description: The creation date of the Image 
+          readOnly: true
         dateUpdated:
           type: string
           format: date-time
-          description: The date the image was updated
+          description: The update date of the Image 
+          readOnly: true
     Name:
       type: object
       properties:
         prefix:
           type: string
-          description: The honorific of the customer.
+          description: The honorific of the Customer.
           example: Mr.
+          minLength: 0
+          maxLength: 25
         firstName:
           type: string
-          description: The first name of the customer.
+          description: The first name of the Customer.
           example: Timothy
+          minLength: 2
+          maxLength: 100
         lastName:
           type: string
-          description: The last name of the customer.
+          description: The last name of the Customer.
           example: Stone
+          minLength: 2
+          maxLength: 100
         suffix:
           type: string
           description: "The name suffix, e.g., Jr, III, Sr., &c."
+          minLength: 0
+          maxLength: 25
     Address:
       type: object
       properties:
@@ -423,37 +453,53 @@ components:
           type: string
           format: uuid
           description: UUID of a specific Address
+          readOnly: true
         addressLine1:
           type: string
-          description: First line of the address
+          description: First line of the Address
           example: 123 Main St.
+          minLength: 3
+          maxLength: 100
         addressLine2:
           type: string
-          description: Second line of the address
+          description: Second line of the Address
           example: Suite 100
+          minLength: 3
+          maxLength: 100
         city:
           type: string
           description: City
           example: Colonial Beach
+          minLength: 3
+          maxLength: 100
         state:
           type: string
-          description: State
-          example: Virginia
+          description: 2 Charater US State Code
+          example: VA
+          minLength: 2
+          maxLength: 2
         postalCode:
           type: string
           description: the US zip code
           example: "22443"
+          minLength: 5
+          maxLength: 10
     PaymentMethod:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: UUID of payment method for customer
+          description: UUID of payment method for Customer
+          readOnly: true
         displayName:
           type: string
+          minLength: 2
+          maxLength: 100
         cardNumber:
           type: integer
+          minLength: 13 
+          maxLength: 19
         expiryMonth:
           type: integer
         expiryYear:
@@ -463,9 +509,13 @@ components:
         dateCreated:
           type: string
           format: date-time
+          description: the creation date of the Payment Method 
+          readOnly: true
         dateUpdated:
           type: string
           format: date-time
+          description: the update date of the Payment Method 
+          readOnly: true
     Error:
       type: object
       properties:
