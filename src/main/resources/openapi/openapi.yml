@@ -228,7 +228,20 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    IsoTimestamp:
+      type: string
+      format: date-time
+      description: |-
+        ISO 8601 Timestamp. Date Created and Date Updated are system managed values and should not be sent 
+        in request payloads, but ignored.
+      example: 2025-09-06T21:31:04-05:00
+      title: ISO 8601 Timestamp
+      readOnly: true
     Order:
+      required:
+        - customer
+        - orderStatus
+        - orderLines
       type: object
       properties:
         id:
@@ -240,23 +253,26 @@ components:
           $ref: "#/components/schemas/OrderCustomer"
         orderStatus:
           type: string
+          enum:
+            - NEW
+            - HOLD
+            - SHIPPED
+            - DELIVERED
+            - CLOSED
+          default: NEW
         shipmentInfo:
           type: string
+          minLength: 8
+          maxLength: 255
         orderLines:
           type: array
           description: the items on the Order
           items:
             $ref: "#/components/schemas/OrderLineItem"
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date of the Product 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Product 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     OrderCustomer:
       type: object
       properties:
@@ -272,13 +288,17 @@ components:
         billToAddess:
           $ref: "#/components/schemas/Address"
         email:
-          type: string
+          type:
+            - string
+            - 'null'
           description: Customer email address
           example: jpeterman@gmail.com
           minLength: 6
           maxLength: 255
         phone:
-          type: string
+          type:
+            - string
+            - 'null'
           description: Customer phone
           example: 804-555-1212
           minLength: 7
@@ -287,6 +307,9 @@ components:
           $ref: "#/components/schemas/PaymentMethod"             
     OrderLineItem:
       type: object
+      required:
+        - product
+        - orderQuantity
       properties:
         id:
           type: string
@@ -302,6 +325,11 @@ components:
             description:
               type: string
               description: the description of the Product
+              example: |-
+                If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
+                workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
+                and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
+                detail. For making statements. Imported.
             price:
               type: number
               format: double
@@ -309,17 +337,19 @@ components:
         orderQuantity:
           type: integer
           description: the quantity of the Products ordered
+          example: 1
+          minimum: 1
+          maximum: 10000
         shipQuantity:
           type: integer
           description: the quantity of the Products shipped
+          example: 1
+          minimum: 1
+          maximum: 10000
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date of the Product 
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Product 
+          $ref: "#/components/schemas/IsoTimestamp"
     Customer:
       type: object
       required:
@@ -358,17 +388,16 @@ components:
           items:
             $ref: "#/components/schemas/PaymentMethod"
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date of the Customer
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Customer
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     Product:
       type: object
+      required:
+        - description
+        - categories
+        - price
+        - cost
       properties:
         id:
           type: string
@@ -401,17 +430,14 @@ components:
           format: double
           example: 1.23
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date of the Product 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Product 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     Category:
       type: object
+      required:
+        - category
+        - description
       properties:
         id:
           type: string
@@ -421,33 +447,49 @@ components:
         category:
           type: string
           description: A category for the Product
+          example: Hat
+          minLength: 3
+          maxLength: 25
+        description:
+          type: string
+          description: The description of the Category
+          example: Hats. All Hats. Cold, Wet, and Warm weather.
+          minLength: 3
+          maxLength: 255
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date the Category 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Category 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     Dimensions:
       type: object
+      required:
+        - height
+        - width
+        - length
       properties:
         height:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
         width:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
         length:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
     Image:
       type: object
+      required:
+        - altText
+        - url
       properties:
         id:
           type: string
@@ -455,27 +497,27 @@ components:
           description: Unique identifier of the Image
           readOnly: true
         caption:
-          type: string
+          type:
+            - string
+            - 'null'
           description: The caption of the Image
           example: The Top Hat
-        alt_text:
+          minLength: 8
+          maxLength: 64
+        altText:
           type: string
           description: The accessible alt text of the Image
           example: The Top Hat
+          minLength: 8
+          maxLength: 64
         url:
           type: string
           format: url
           example: https://example.com/dam/images/top_hat.webp
         dateCreated:
-          type: string
-          format: date-time
-          description: The creation date of the Image 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The update date of the Image 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     Name:
       type: object
       required:
@@ -594,15 +636,9 @@ components:
           maxLength: 4
           example: "1234"
         dateCreated:
-          type: string
-          format: date-time
-          description: the creation date of the Payment Method 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: the update date of the Payment Method 
-          readOnly: true
+          $ref: "#/components/schemas/IsoTimestamp"
     Error:
       type: object
       properties:
