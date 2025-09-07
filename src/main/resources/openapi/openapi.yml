@@ -22,11 +22,42 @@ security:
   - basic_auth: []
 paths:
   /v1/customers:
+    post:
+      tags:
+        - Customer
+      summary: Create a new Customer
+      description: Create a new Customer
+      operationId: createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        '201':
+          description: Created new Customer
+          headers:
+            Location:
+              description: The location of the new Customer
+              schema:
+                type: string
+                format: uri
+                example: /v1/customers/14913dea-0c5c-4846-a1a7-459aaa1305d3
+        '400':
+          description: Bad Request
+        '409':
+          description: Conflict
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     get:
       tags:
         - Customer
       summary: List Customers
-      description: Returns the list of customers
+      description: Returns the list of Customers
       operationId: listCustomers
       responses:
         '200':
@@ -38,7 +69,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Customer'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Customer not found
         default:
@@ -57,7 +88,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: the ID of the customer
+          description: the ID of the Customer
           required: true
           schema:
             type: string
@@ -70,7 +101,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Customer not found
         default:
@@ -96,7 +127,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Product'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Product not found
         default:
@@ -128,7 +159,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Product"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Product not found
         default:
@@ -154,7 +185,7 @@ paths:
                 items: 
                   $ref: '#/components/schemas/Order'
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Order not found
         default:
@@ -186,7 +217,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Order"
         '400':
-          description: Invalid Request
+          description: Bad Request
         '404':
           description: Order not found
         default:
@@ -197,93 +228,140 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    IsoTimestamp:
+      type: string
+      format: date-time
+      description: |-
+        ISO 8601 Timestamp. Date Created and Date Updated are system managed values and should not be sent 
+        in request payloads, but ignored.
+      example: 2025-09-06T21:31:04-05:00
+      title: ISO 8601 Timestamp
+      readOnly: true
     Order:
+      required:
+        - customer
+        - orderStatus
+        - orderLines
       type: object
       properties:
         id:
           type: string
           format: uuid
           description: UUID of an Order
+          readOnly: true
         customer:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: UUID of a specific customer
-            name:
-              $ref: "#/components/schemas/Name"
-            shipToAddess:
-              $ref: "#/components/schemas/Address"
-            billToAddess:
-              $ref: "#/components/schemas/Address"
-            email:
-              type: string
-              description: Customer email address
-              example: jpeterman@gmail.com
-            phone:
-              type: string
-              description: Customer phone
-              example: 804-555-1212
-            selectedPaymentMethod:
-              $ref: "#/components/schemas/PaymentMethod"             
+          $ref: "#/components/schemas/OrderCustomer"
         orderStatus:
           type: string
+          enum:
+            - NEW
+            - HOLD
+            - SHIPPED
+            - DELIVERED
+            - CLOSED
+          default: NEW
         shipmentInfo:
           type: string
+          minLength: 8
+          maxLength: 255
         orderLines:
           type: array
-          description: the items on the order
+          description: the items on the Order
           items:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                description: UUID of the Order Line
-              product:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    description: UUID of the product
-                  description:
-                    type: string
-                    description: the description of the product
-                  price:
-                    type: number
-                    format: double
-                    example: 12.34
-              orderQuantity:
-                type: integer
-                description: the quantity of the products ordered
-              shipQuantity:
-                type: integer
-                description: the quantity of the products shipped
-              dateCreated:
-                type: string
-                format: date-time
-                description: The date the product was created
-              dateUpdated:
-                type: string
-                format: date-time
-                description: The date the product was updated
+            $ref: "#/components/schemas/OrderLineItem"
         dateCreated:
-          type: string
-          format: date-time
-          description: The date the product was created
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The date the product was updated
-    Customer:
+          $ref: "#/components/schemas/IsoTimestamp"
+    OrderCustomer:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: UUID of a specific customer
+          description: UUID of a specific Customer
+          readOnly: true
+        name:
+          $ref: "#/components/schemas/Name"
+        shipToAddess:
+          $ref: "#/components/schemas/Address"
+        billToAddess:
+          $ref: "#/components/schemas/Address"
+        email:
+          type:
+            - string
+            - 'null'
+          description: Customer email address
+          example: jpeterman@gmail.com
+          minLength: 6
+          maxLength: 255
+        phone:
+          type:
+            - string
+            - 'null'
+          description: Customer phone
+          example: 804-555-1212
+          minLength: 7
+          maxLength: 20
+        selectedPaymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"             
+    OrderLineItem:
+      type: object
+      required:
+        - product
+        - orderQuantity
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of the Order Line
+        product:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: UUID of the Product
+            description:
+              type: string
+              description: the description of the Product
+              example: |-
+                If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
+                workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
+                and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
+                detail. For making statements. Imported.
+            price:
+              type: number
+              format: double
+              example: 12.34
+        orderQuantity:
+          type: integer
+          description: the quantity of the Products ordered
+          example: 1
+          minimum: 1
+          maximum: 10000
+        shipQuantity:
+          type: integer
+          description: the quantity of the Products shipped
+          example: 1
+          minimum: 1
+          maximum: 10000
+        dateCreated:
+          $ref: "#/components/schemas/IsoTimestamp"
+        dateUpdated:
+          $ref: "#/components/schemas/IsoTimestamp"
+    Customer:
+      type: object
+      required:
+        - name
+        - shipToAddress
+        - billToAddress
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Customer
+          readOnly: true
         name:
           $ref: "#/components/schemas/Name"
         shipToAddress:
@@ -291,20 +369,41 @@ components:
         billToAddress:
           $ref: "#/components/schemas/Address"
         email:
-          type: string
+          type: 
+            - string
+            - 'null'
+          description: Customer email address
+          example: jpeterman@gmail.com
+          minLength: 6
+          maxLength: 255
         phone:
-          type: string
+          type:
+            - string
+            - 'null'
+          example: 804-555-1212
+          minLength: 7
+          maxLength: 20
         paymentMethods:
           type: array
           items:
             $ref: "#/components/schemas/PaymentMethod"
+        dateCreated:
+          $ref: "#/components/schemas/IsoTimestamp"
+        dateUpdated:
+          $ref: "#/components/schemas/IsoTimestamp"
     Product:
       type: object
+      required:
+        - description
+        - categories
+        - price
+        - cost
       properties:
         id:
           type: string
           format: uuid
           description: UUID of a specific Product
+          readOnly: true
         description:
           type: string
           example: |-
@@ -331,141 +430,215 @@ components:
           format: double
           example: 1.23
         dateCreated:
-          type: string
-          format: date-time
-          description: The date the product was created
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The date the product was updated
+          $ref: "#/components/schemas/IsoTimestamp"
     Category:
       type: object
+      required:
+        - category
+        - description
       properties:
         id:
           type: string
           format: uuid
           description: Unique identifier of the Image
+          readOnly: true
         category:
           type: string
           description: A category for the Product
+          example: Hat
+          minLength: 3
+          maxLength: 25
+        description:
+          type: string
+          description: The description of the Category
+          example: Hats. All Hats. Cold, Wet, and Warm weather.
+          minLength: 3
+          maxLength: 255
         dateCreated:
-          type: string
-          format: date-time
-          description: The date the Category was created
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The date the Category was updated
+          $ref: "#/components/schemas/IsoTimestamp"
     Dimensions:
       type: object
+      required:
+        - height
+        - width
+        - length
       properties:
         height:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
         width:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
         length:
           type: number
           format: float
           example: 3.13
+          minimum: 0.0
+          maximum: 999.0
     Image:
       type: object
+      required:
+        - altText
+        - url
       properties:
         id:
           type: string
           format: uuid
           description: Unique identifier of the Image
+          readOnly: true
         caption:
-          type: string
-          description: The caption of the image
+          type:
+            - string
+            - 'null'
+          description: The caption of the Image
           example: The Top Hat
-        alt_text:
+          minLength: 8
+          maxLength: 64
+        altText:
           type: string
-          description: The accessible alt text of the image
+          description: The accessible alt text of the Image
           example: The Top Hat
+          minLength: 8
+          maxLength: 64
         url:
           type: string
           format: url
           example: https://example.com/dam/images/top_hat.webp
         dateCreated:
-          type: string
-          format: date-time
-          description: The date the image was created
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
-          description: The date the image was updated
+          $ref: "#/components/schemas/IsoTimestamp"
     Name:
       type: object
+      required:
+        - firstName
+        - lastName
       properties:
         prefix:
-          type: string
-          description: The honorific of the customer.
+          type:
+            - string
+            - 'null'
+          description: The honorific of the Customer.
           example: Mr.
+          minLength: 0
+          maxLength: 25
         firstName:
           type: string
-          description: The first name of the customer.
-          example: Timothy
+          description: The first name of the Customer.
+          example: John
+          minLength: 2
+          maxLength: 100
         lastName:
           type: string
-          description: The last name of the customer.
-          example: Stone
+          description: The last name of the Customer.
+          example: Peterman
+          minLength: 2
+          maxLength: 100
         suffix:
-          type: string
+          type:
+            - string
+            - 'null'
           description: "The name suffix, e.g., Jr, III, Sr., &c."
+          minLength: 0
+          maxLength: 25
     Address:
       type: object
+      required:
+        - addressLine1
+        - city
+        - state
+        - postalCode
       properties:
         id:
           type: string
           format: uuid
           description: UUID of a specific Address
+          readOnly: true
         addressLine1:
-          type: string
-          description: First line of the address
+          type:
+            - string
+            - 'null'
+          description: First line of the Address
           example: 123 Main St.
+          minLength: 3
+          maxLength: 100
         addressLine2:
           type: string
-          description: Second line of the address
+          description: Second line of the Address
           example: Suite 100
+          minLength: 3
+          maxLength: 100
         city:
           type: string
           description: City
           example: Colonial Beach
+          minLength: 3
+          maxLength: 100
         state:
           type: string
-          description: State
-          example: Virginia
+          description: 2 Character US State Code
+          example: VA
+          minLength: 2
+          maxLength: 2
         postalCode:
           type: string
           description: the US zip code
           example: "22443"
+          minLength: 5
+          maxLength: 10
     PaymentMethod:
       type: object
+      required:
+        - displayName
+        - cardNumber
+        - expiryMonth
+        - expiryYear
+        - cvv
       properties:
         id:
           type: string
           format: uuid
-          description: UUID of payment method for customer
+          description: UUID of payment method for Customer
+          readOnly: true
         displayName:
           type: string
+          minLength: 2
+          maxLength: 100
+          example: J Peterman
         cardNumber:
-          type: integer
+          type: string
+          minLength: 13 
+          maxLength: 19
+          example: "378282246310005"
         expiryMonth:
-          type: integer
+          type: string
+          minLength: 2
+          maxLength: 2
+          example: "02"
         expiryYear:
-          type: integer
+          type: string
+          minLength: 2
+          maxLength: 2
+          example: "25"
         cvv:
-          type: integer
+          type: string
+          minLength: 3
+          maxLength: 4
+          example: "1234"
         dateCreated:
-          type: string
-          format: date-time
+          $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
-          type: string
-          format: date-time
+          $ref: "#/components/schemas/IsoTimestamp"
     Error:
       type: object
       properties:
