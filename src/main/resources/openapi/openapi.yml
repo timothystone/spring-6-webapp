@@ -42,7 +42,8 @@ paths:
               schema:
                 type: string
                 format: uri
-                example: /v1/customers/14913dea-0c5c-4846-a1a7-459aaa1305d3
+                examples: 
+                  - /v1/customers/14913dea-0c5c-4846-a1a7-459aaa1305d3
         '400':
           description: Bad Request
         '409':
@@ -93,6 +94,8 @@ paths:
           schema:
             type: string
             format: uuid
+            examples:
+              - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
       responses:
         '200':
           description: successful operation
@@ -151,6 +154,8 @@ paths:
           schema:
             type: string
             format: uuid
+            examples:
+              - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
       responses:
         '200':
           description: successful operation
@@ -209,6 +214,8 @@ paths:
           schema:
             type: string
             format: uuid
+            examples:
+              - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
       responses:
         '200':
           description: successful operation
@@ -228,15 +235,256 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    Address:
+      type: object
+      required:
+        - addressLine1
+        - city
+        - state
+        - postalCode
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Address
+          readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
+        addressLine1:
+          type:
+            - string
+            - 'null'
+          description: First line of the Address
+          minLength: 3
+          maxLength: 100
+          examples: 
+            - 123 Main St.
+        addressLine2:
+          type: string
+          description: Second line of the Address
+          minLength: 3
+          maxLength: 100
+          examples: 
+            - Suite 100
+        city:
+          type: string
+          description: City
+          minLength: 3
+          maxLength: 100
+          examples: 
+            - Colonial Beach
+        state:
+          type: string
+          description: 2 Character US State Code
+          minLength: 2
+          maxLength: 2
+          examples: 
+            - VA
+        postalCode:
+          type: string
+          description: the US zip code
+          minLength: 5
+          maxLength: 10
+          examples: 
+            - "22443"
+    Category:
+      type: object
+      required:
+        - category
+        - description
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the Image
+          readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
+        category:
+          type: string
+          description: A category for the Product
+          minLength: 3
+          maxLength: 25
+          examples: 
+            - Hat
+        description:
+          type: string
+          description: The description of the Category
+          minLength: 3
+          maxLength: 255
+          examples: 
+            - Hats. All Hats. Cold, Wet, and Warm weather.
+        dateCreated:
+          $ref: "#/components/schemas/IsoTimestamp"
+        dateUpdated:
+          $ref: "#/components/schemas/IsoTimestamp"
+    Customer:
+      type: object
+      required:
+        - name
+        - shipToAddress
+        - billToAddress
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of a specific Customer
+          readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
+        name:
+          $ref: "#/components/schemas/Name"
+        shipToAddress:
+          $ref: "#/components/schemas/Address"
+        billToAddress:
+          $ref: "#/components/schemas/Address"
+        email:
+          type: 
+            - string
+            - 'null'
+          description: Customer email address
+          minLength: 6
+          maxLength: 255
+          examples: 
+            - jpeterman@gmail.com
+        phone:
+          type:
+            - string
+            - 'null'
+          minLength: 7
+          maxLength: 20
+          examples: 
+            - 804-555-1212
+        paymentMethods:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentMethod"
+        dateCreated:
+          $ref: "#/components/schemas/IsoTimestamp"
+        dateUpdated:
+          $ref: "#/components/schemas/IsoTimestamp"
+    Dimensions:
+      type: object
+      required:
+        - height
+        - width
+        - length
+      properties:
+        height:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 999.0
+          examples: 
+            - 3.13
+        width:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 999.0
+          examples: 
+            - 3.13
+        length:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 999.0
+          examples: 
+            - 3.13
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    Image:
+      type: object
+      required:
+        - altText
+        - url
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the Image
+          readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
+        caption:
+          type:
+            - string
+            - 'null'
+          description: The caption of the Image
+          minLength: 8
+          maxLength: 64
+          examples: 
+            - The Top Hat
+        altText:
+          type: string
+          description: The accessible alt text of the Image
+          minLength: 8
+          maxLength: 64
+          examples: 
+            - The Top Hat
+        url:
+          type: string
+          format: uri
+          examples: 
+            - https://example.com/dam/images/top_hat.webp
+        dateCreated:
+          $ref: "#/components/schemas/IsoTimestamp"
+        dateUpdated:
+          $ref: "#/components/schemas/IsoTimestamp"
     IsoTimestamp:
       type: string
       format: date-time
       description: |-
         ISO 8601 Timestamp. Date Created and Date Updated are system managed values and should not be sent 
         in request payloads, but ignored.
-      example: 2025-09-06T21:31:04-05:00
       title: ISO 8601 Timestamp
       readOnly: true
+      examples:
+        - "2025-09-08T20:20:34-05:00"
+    Name:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        prefix:
+          type:
+            - string
+            - 'null'
+          description: The honorific of the Customer.
+          minLength: 0
+          maxLength: 25
+          examples: 
+            - Mr.
+        firstName:
+          type: string
+          description: The first name of the Customer.
+          minLength: 2
+          maxLength: 100
+          examples: 
+            - John
+        lastName:
+          type: string
+          description: The last name of the Customer.
+          minLength: 2
+          maxLength: 100
+          examples: 
+            - Peterman
+        suffix:
+          type:
+            - string
+            - 'null'
+          description: "The name suffix, e.g., Jr, III, Sr., &c."
+          minLength: 0
+          maxLength: 25
     Order:
       required:
         - customer
@@ -249,6 +497,8 @@ components:
           format: uuid
           description: UUID of an Order
           readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
         customer:
           $ref: "#/components/schemas/OrderCustomer"
         orderStatus:
@@ -281,6 +531,8 @@ components:
           format: uuid
           description: UUID of a specific Customer
           readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
         name:
           $ref: "#/components/schemas/Name"
         shipToAddess:
@@ -292,17 +544,19 @@ components:
             - string
             - 'null'
           description: Customer email address
-          example: jpeterman@gmail.com
           minLength: 6
           maxLength: 255
+          examples: 
+            - jpeterman@gmail.com
         phone:
           type:
             - string
             - 'null'
           description: Customer phone
-          example: 804-555-1212
           minLength: 7
           maxLength: 20
+          examples: 
+            - 804-555-1212
         selectedPaymentMethod:
           $ref: "#/components/schemas/PaymentMethod"             
     OrderLineItem:
@@ -315,6 +569,8 @@ components:
           type: string
           format: uuid
           description: UUID of the Order Line
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
         product:
           type: object
           properties:
@@ -322,71 +578,86 @@ components:
               type: string
               format: uuid
               description: UUID of the Product
+              examples:
+                - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
             description:
               type: string
               description: the description of the Product
-              example: |-
-                If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
-                workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
-                and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
-                detail. For making statements. Imported.
+              examples: 
+                - |-
+                  If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
+                  workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
+                  and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
+                  detail. For making statements. Imported.
             price:
               type: number
               format: double
-              example: 12.34
+              examples: 
+                - 12.34
         orderQuantity:
           type: integer
           description: the quantity of the Products ordered
-          example: 1
           minimum: 1
           maximum: 10000
+          examples: 
+            - 1
         shipQuantity:
           type: integer
           description: the quantity of the Products shipped
-          example: 1
           minimum: 1
           maximum: 10000
+          examples: 
+            - 1
         dateCreated:
           $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
           $ref: "#/components/schemas/IsoTimestamp"
-    Customer:
+    PaymentMethod:
       type: object
       required:
-        - name
-        - shipToAddress
-        - billToAddress
+        - displayName
+        - cardNumber
+        - expiryMonth
+        - expiryYear
+        - cvv
       properties:
         id:
           type: string
           format: uuid
-          description: UUID of a specific Customer
+          description: UUID of payment method for Customer
           readOnly: true
-        name:
-          $ref: "#/components/schemas/Name"
-        shipToAddress:
-          $ref: "#/components/schemas/Address"
-        billToAddress:
-          $ref: "#/components/schemas/Address"
-        email:
-          type: 
-            - string
-            - 'null'
-          description: Customer email address
-          example: jpeterman@gmail.com
-          minLength: 6
-          maxLength: 255
-        phone:
-          type:
-            - string
-            - 'null'
-          example: 804-555-1212
-          minLength: 7
-          maxLength: 20
-        paymentMethods:
-          type: array
-          items:
-            $ref: "#/components/schemas/PaymentMethod"
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
+        displayName:
+          type: string
+          minLength: 2
+          maxLength: 100
+          examples: 
+            - J Peterman
+        cardNumber:
+          type: string
+          minLength: 13 
+          maxLength: 19
+          examples: 
+            - "378282246310005"
+        expiryMonth:
+          type: string
+          minLength: 2
+          maxLength: 2
+          examples: 
+            - "02"
+        expiryYear:
+          type: string
+          minLength: 2
+          maxLength: 2
+          examples: 
+            - "25"
+        cvv:
+          type: string
+          minLength: 3
+          maxLength: 4
+          examples: 
+            - "1234"
         dateCreated:
           $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
@@ -404,13 +675,16 @@ components:
           format: uuid
           description: UUID of a specific Product
           readOnly: true
+          examples:
+            - bd43bf3d-76bb-4c80-9d23-53191a53f5e8
         description:
           type: string
-          example: |-
-            If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
-            workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
-            and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
-            detail. For making statements. Imported.
+          examples: 
+            - |-
+              If you think it was just the dandies who wore top hats, you don’t know Dylan or the tough-as-nails dock 
+              workers of East London in the late 19th century. Perfect with tails and equally perfect (with some wear 
+              and tear) with scuffed-up boots and a canvas trench. Made of 100% wool. Grosgrain band with bow knot 
+              detail. For making statements. Imported.
         categories:
           type: array
           items:
@@ -424,231 +698,17 @@ components:
         price:
           type: number
           format: double
-          example: 12.34
+          examples: 
+            - 12.34
         cost:
           type: number
           format: double
-          example: 1.23
+          examples: 
+            - 1.23
         dateCreated:
           $ref: "#/components/schemas/IsoTimestamp"
         dateUpdated:
           $ref: "#/components/schemas/IsoTimestamp"
-    Category:
-      type: object
-      required:
-        - category
-        - description
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier of the Image
-          readOnly: true
-        category:
-          type: string
-          description: A category for the Product
-          example: Hat
-          minLength: 3
-          maxLength: 25
-        description:
-          type: string
-          description: The description of the Category
-          example: Hats. All Hats. Cold, Wet, and Warm weather.
-          minLength: 3
-          maxLength: 255
-        dateCreated:
-          $ref: "#/components/schemas/IsoTimestamp"
-        dateUpdated:
-          $ref: "#/components/schemas/IsoTimestamp"
-    Dimensions:
-      type: object
-      required:
-        - height
-        - width
-        - length
-      properties:
-        height:
-          type: number
-          format: float
-          example: 3.13
-          minimum: 0.0
-          maximum: 999.0
-        width:
-          type: number
-          format: float
-          example: 3.13
-          minimum: 0.0
-          maximum: 999.0
-        length:
-          type: number
-          format: float
-          example: 3.13
-          minimum: 0.0
-          maximum: 999.0
-    Image:
-      type: object
-      required:
-        - altText
-        - url
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier of the Image
-          readOnly: true
-        caption:
-          type:
-            - string
-            - 'null'
-          description: The caption of the Image
-          example: The Top Hat
-          minLength: 8
-          maxLength: 64
-        altText:
-          type: string
-          description: The accessible alt text of the Image
-          example: The Top Hat
-          minLength: 8
-          maxLength: 64
-        url:
-          type: string
-          format: url
-          example: https://example.com/dam/images/top_hat.webp
-        dateCreated:
-          $ref: "#/components/schemas/IsoTimestamp"
-        dateUpdated:
-          $ref: "#/components/schemas/IsoTimestamp"
-    Name:
-      type: object
-      required:
-        - firstName
-        - lastName
-      properties:
-        prefix:
-          type:
-            - string
-            - 'null'
-          description: The honorific of the Customer.
-          example: Mr.
-          minLength: 0
-          maxLength: 25
-        firstName:
-          type: string
-          description: The first name of the Customer.
-          example: John
-          minLength: 2
-          maxLength: 100
-        lastName:
-          type: string
-          description: The last name of the Customer.
-          example: Peterman
-          minLength: 2
-          maxLength: 100
-        suffix:
-          type:
-            - string
-            - 'null'
-          description: "The name suffix, e.g., Jr, III, Sr., &c."
-          minLength: 0
-          maxLength: 25
-    Address:
-      type: object
-      required:
-        - addressLine1
-        - city
-        - state
-        - postalCode
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: UUID of a specific Address
-          readOnly: true
-        addressLine1:
-          type:
-            - string
-            - 'null'
-          description: First line of the Address
-          example: 123 Main St.
-          minLength: 3
-          maxLength: 100
-        addressLine2:
-          type: string
-          description: Second line of the Address
-          example: Suite 100
-          minLength: 3
-          maxLength: 100
-        city:
-          type: string
-          description: City
-          example: Colonial Beach
-          minLength: 3
-          maxLength: 100
-        state:
-          type: string
-          description: 2 Character US State Code
-          example: VA
-          minLength: 2
-          maxLength: 2
-        postalCode:
-          type: string
-          description: the US zip code
-          example: "22443"
-          minLength: 5
-          maxLength: 10
-    PaymentMethod:
-      type: object
-      required:
-        - displayName
-        - cardNumber
-        - expiryMonth
-        - expiryYear
-        - cvv
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: UUID of payment method for Customer
-          readOnly: true
-        displayName:
-          type: string
-          minLength: 2
-          maxLength: 100
-          example: J Peterman
-        cardNumber:
-          type: string
-          minLength: 13 
-          maxLength: 19
-          example: "378282246310005"
-        expiryMonth:
-          type: string
-          minLength: 2
-          maxLength: 2
-          example: "02"
-        expiryYear:
-          type: string
-          minLength: 2
-          maxLength: 2
-          example: "25"
-        cvv:
-          type: string
-          minLength: 3
-          maxLength: 4
-          example: "1234"
-        dateCreated:
-          $ref: "#/components/schemas/IsoTimestamp"
-        dateUpdated:
-          $ref: "#/components/schemas/IsoTimestamp"
-    Error:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-      required:
-        - code
-        - message
   securitySchemes:
     basic_auth:
       type: http
