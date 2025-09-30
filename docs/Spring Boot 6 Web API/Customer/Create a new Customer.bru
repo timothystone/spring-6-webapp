@@ -1,0 +1,47 @@
+meta {
+  name: Create a new Customer
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/customers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": {
+      "prefix": "",
+      "firstName": "",
+      "lastName": "",
+      "suffix": ""
+    },
+    "shipToAddress": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "postalCode": ""
+    },
+    "billToAddress": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "postalCode": ""
+    },
+    "email": "",
+    "phone": "",
+    "paymentMethods": [
+      {
+        "displayName": "",
+        "cardNumber": "",
+        "expiryMonth": "",
+        "expiryYear": "",
+        "cvv": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Create a new Order
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/v1/orders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "customerId": "f7d4304f-bf7c-4f6b-9aac-cba8b751ce89",
+    "selectedPaymentMethod": "3bc3f2bd-a0e9-4891-abee-4e1f84f8906e",
+    "orderLines": [
+      {
+        "productId": "992d1e65-8eaa-48f2-ba04-8574a9230526",
+        "orderQuantity": 10
+      }
+    ]
+  }
+}

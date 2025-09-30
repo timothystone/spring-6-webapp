@@ -1,0 +1,15 @@
+meta {
+  name: Get Product by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/v1/products/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 992d1e65-8eaa-48f2-ba04-8574a9230526
+}
